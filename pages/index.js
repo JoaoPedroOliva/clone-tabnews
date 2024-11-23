@@ -1,5 +1,5 @@
 function Home (){
-    return <h1>Ir para os EUA</h1>
+    return <h1>Partiu EUA em 2026</h1>
 }
 
 export default Home
