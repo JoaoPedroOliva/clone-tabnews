@@ -8,9 +8,17 @@ async function status(request, response) {
   const databaseVersionValeu = databaseVersionResult.rows[0].server_version;
 
   //Conexões máximas
-  const databaseMaxConnections = await database.query("SHOW max_connections");
+  const databaseMaxConnectionsResult = await database.query(
+    "SHOW max_connections",
+  );
   const databaseMaxConnectiosValue =
-    databaseMaxConnections.rows[0].max_connections;
+    databaseMaxConnectionsResult.rows[0].max_connections;
+
+  //Conexões usadas
+  const databaseUsedConnectionsResult = await database.query(
+    "SELECT count(*) FROM pg_stat_activity",
+  );
+  const databaseUsedConnectionsValeu = databaseUsedConnectionsResult.rows[0];
 
   response.status(200).json({
     updated_at: updatedAt,
@@ -18,6 +26,7 @@ async function status(request, response) {
       database: {
         version: databaseVersionValeu,
         max_connections: databaseMaxConnectiosValue,
+        used_connections: databaseUsedConnectionsValeu,
       },
     },
   });
