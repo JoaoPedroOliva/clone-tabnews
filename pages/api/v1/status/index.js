@@ -9,24 +9,27 @@ async function status(request, response) {
 
   //Conexões máximas
   const databaseMaxConnectionsResult = await database.query(
-    "SHOW max_connections",
+    "SHOW max_connections;",
   );
   const databaseMaxConnectiosValue =
     databaseMaxConnectionsResult.rows[0].max_connections;
 
   //Conexões usadas
-  const databaseUsedConnectionsResult = await database.query(
-    "SELECT count(*) FROM pg_stat_activity",
-  );
-  const databaseUsedConnectionsValeu = databaseUsedConnectionsResult.rows[0];
+  const databaseName = process.env.POSTGRES_DB;
+  const databaseOpenedConnectionsResult = await database.query({
+    text: "SELECT count(*)::int FROM pg_stat_activity WHERE datname = $1;",
+    values: [databaseName],
+  });
+  const databaseOpenedConnectionsValue =
+    databaseOpenedConnectionsResult.rows[0].count;
 
   response.status(200).json({
     updated_at: updatedAt,
     dependencies: {
       database: {
         version: databaseVersionValeu,
-        max_connections: databaseMaxConnectiosValue,
-        used_connections: databaseUsedConnectionsValeu,
+        max_connections: parseInt(databaseMaxConnectiosValue),
+        used_connections: databaseOpenedConnectionsValue,
       },
     },
   });
